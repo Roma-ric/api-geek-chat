@@ -1,4 +1,4 @@
-### Geek Chat API using Node Express MongoDB
+### Geek Chat API using Node Express MySQL
 
 1. Initialiser **`yarn`**`
 
