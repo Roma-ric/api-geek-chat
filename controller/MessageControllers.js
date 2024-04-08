@@ -33,7 +33,7 @@ exports.createMessage = async (req, res) => {
 exports.updateMessage = async (req, res) => {
     try {
         const { idMessage } = req.params;
-        const { texte, idGroupe, idUser } = req.body;
+        const { texte } = req.body;
 
         let updateFields = [];
         let updateValues = [];
@@ -57,9 +57,13 @@ exports.updateMessage = async (req, res) => {
             updateValues
         );
 
-        res.status(200).json({
-            message: "Message modifié avec succès",
-        });
+        // Récupérez le message modifié depuis la base de données
+        const [updatedMessage] = await connection.execute(
+            `SELECT * FROM message WHERE idMessage = ?`,
+            [idMessage]
+        );
+
+        res.status(200).json(updatedMessage[0]);
     } catch (err) {
         console.error(err);
         res.status(500).json({
@@ -77,6 +81,22 @@ exports.getAllMessageGroupe = async (req, res) => {
         );
         res.status(202).json({
             messages: data[0],
+        });
+    } catch (err) {
+        res.status(500).json({
+            message: err,
+        });
+    }
+}
+
+exports.getMessage = async (req, res) => {
+    try {
+        const { idMessage } = req.params
+        const data = await connection.execute(
+            `SELECT * from message WHERE idMessage = ?`, [idMessage]
+        );
+        res.status(200).json({
+            user: data[0][0],
         });
     } catch (err) {
         res.status(500).json({

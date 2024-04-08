@@ -5,8 +5,10 @@ const MessageControllers = require('../controller/MessageControllers');
 
 router.post('/', MessageControllers.createMessage);
 
+router.get('/:idMessage', MessageControllers.getMessage);
+
 router.get('/', MessageControllers.getAllMessageGroupe);
- 
+
 router.patch('/:idMessage', MessageControllers.updateMessage);
 
 router.delete('/:idMessage', MessageControllers.deleteMessage);
