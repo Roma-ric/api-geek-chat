@@ -18,10 +18,20 @@ exports.createMessage = async (req, res) => {
             [texte, idGroupe, pseudoUser]
         );
         const insertId = result[0].insertId;
-        res.status(201).json({
-            message: "Message créé avec succès",
-            messageId: insertId
-        });
+
+        // Récupérez l'id du message
+        const newMessageId = await connection.execute(
+            `SELECT idMessage FROM message WHERE idMessage = ? AND pseudoUser = ? AND idGroupe = ?`,
+            [texte, pseudoUser, idGroupe]
+        );
+
+        // Récupérez le message 
+        const [newMessage] = await connection.execute(
+            `SELECT * FROM message WHERE idMessage = ?`,
+            [newMessageId]
+        );
+
+        res.status(201).json(newMessage[0]);
     } catch (err) {
         console.error(err);
         res.status(500).json({
@@ -108,13 +118,19 @@ exports.getMessage = async (req, res) => {
 exports.deleteMessage = async (req, res) => {
     try {
         const { idMessage } = req.params;
+
+        // Récupérez le message 
+        const [oldMessage] = await connection.execute(
+            `SELECT * FROM message WHERE idMessage = ?`,
+            [idMessage]
+        );
+
         await connection.execute(
             `DELETE FROM message WHERE idMessage = ?`,
             [idMessage]
         );
-        res.status(200).json({
-            message: "Message supprimé",
-        });
+
+        res.status(200).json(oldMessage[0]);
     } catch (err) {
         res.status(500).json({
             message: err,
