@@ -12,26 +12,25 @@ const connection = mysql.createPool({
 exports.createMessage = async (req, res) => {
     try {
         const { texte, idGroupe, pseudoUser } = req.body;
-        const result = await connection.execute(
+        // Exécutez la requête d'insertion du message
+        const [result] = await connection.execute(
             `INSERT INTO message (texte, idGroupe, pseudoUser) 
             VALUES (?,?,?)`,
             [texte, idGroupe, pseudoUser]
         );
-        const insertId = result[0].insertId;
 
-        // Récupérez l'id du message
-        const newMessageId = await connection.execute(
-            `SELECT idMessage FROM message WHERE idMessage = ? AND pseudoUser = ? AND idGroupe = ?`,
-            [texte, pseudoUser, idGroupe]
-        );
+        // Récupérez l'id du message inséré
+        const newMessageId = result.insertId;
 
-        // Récupérez le message 
-        const [newMessage] = await connection.execute(
+        // Récupérez le message à l'aide de son id
+        const [message] = await connection.execute(
             `SELECT * FROM message WHERE idMessage = ?`,
             [newMessageId]
         );
 
-        res.status(201).json(newMessage[0]);
+        const newMessage = message[0];
+
+        res.status(201).json(newMessage);
     } catch (err) {
         console.error(err);
         res.status(500).json({
